@@ -1,6 +1,6 @@
-# DeCA Cloud Trujillo Logistics — Sistema de Control Administrativo para el Transporte de Mercancías
+# DeCA Trujillo Logistics — Sistema de Control Administrativo para el Transporte de Mercancías
 
-DeCA Cloud es una solución tecnológica avanzada orientada a operadores logísticos, empresas de transporte y cargadores para la emisión, gestión y custodia de **Documentos de Control Administrativo (DeCA)** en el sector del transporte público de mercancías por carretera en España. La plataforma se alinea con los estándares jurídicos establecidos por la Ley 9/2025 de Movilidad Sostenible, la Orden FOM/2861/2012, la Orden TRM/282/2026 y la Resolución de 5 de junio de 2026 de la Dirección General de Transporte por Carretera y Ferrocarril.
+DeCA Trujillo es una solución tecnológica avanzada orientada a operadores logísticos, empresas de transporte y cargadores para la emisión, gestión y custodia de **Documentos de Control Administrativo (DeCA)** en el sector del transporte público de mercancías por carretera en España. La plataforma se alinea con los estándares jurídicos establecidos por la Ley 9/2025 de Movilidad Sostenible, la Orden FOM/2861/2012, la Orden TRM/282/2026 y la Resolución de 5 de junio de 2026 de la Dirección General de Transporte por Carretera y Ferrocarril.
 
 ---
 
