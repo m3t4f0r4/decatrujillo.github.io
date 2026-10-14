@@ -1,40 +1,21 @@
-# DeCA Cloud España — Plataforma Profesional de Generación de Documentos de Control Administrativo
+# DeCA Cloud Trujillo Logistics — Sistema de Control Administrativo para el Transporte de Mercancías
 
-DeCA Cloud es una plataforma web enterprise diseñada para la emisión, gestión y verificación inmutable de **Documentos de Control Administrativo (DeCA)** para el transporte público de mercancías por carretera en España. El sistema implementa los estándares jurídicos establecidos por la Ley 9/2025 de Movilidad Sostenible, la Orden FOM/2861/2012, la Orden TRM/282/2026 y la Resolución de 5 de junio de 2026 de la Dirección General de Transporte por Carretera y Ferrocarril.
-
----
-
-## Especificaciones Técnicas y Cumplimiento Normativo
-
-* **Estructura de Datos Obligatoria:** Modelado relacional completo de acuerdo con el artículo 6 de la Orden FOM/2861/2012, contemplando los datos del cargador contractual, transportista efectivo, origen, destino, naturaleza de la mercancía, pesos con unidades normalizadas y matrículas de vehículos tractores y remolques.
-* **Trazabilidad Criptográfica:** Integridad documental mediante hashes SHA-256 para asegurar la detección de alteraciones y garantizar la trazabilidad entre versiones sustitutivas o modificadas.
-* **Códigos QR e Inspección Directa:** Generación de códigos QR de alta densidad de error que codifican URLs HTTPS únicas y persistentes. Diseñado para permitir el acceso directo de los Cuerpos de Inspección de Transporte al documento oficial sin requerir pantallas de autenticación o credenciales intermedias.
-* **Emisión Previa al Servicio:** El flujo transaccional bloquea cualquier emisión que no certifique la generación del documento con carácter previo al inicio efectivo de la operación de transporte.
+DeCA Cloud es una solución tecnológica avanzada orientada a operadores logísticos, empresas de transporte y cargadores para la emisión, gestión y custodia de **Documentos de Control Administrativo (DeCA)** en el sector del transporte público de mercancías por carretera en España. La plataforma se alinea con los estándares jurídicos establecidos por la Ley 9/2025 de Movilidad Sostenible, la Orden FOM/2861/2012, la Orden TRM/282/2026 y la Resolución de 5 de junio de 2026 de la Dirección General de Transporte por Carretera y Ferrocarril.
 
 ---
 
-## Arquitectura del Sistema
+## Marco Normativo y Fundamentos Jurídicos
 
-La solución se compone de una arquitectura desacoplada orientada a microservicios y alta disponibilidad:
+El diseño del sistema responde de forma estricta a las exigencias regulatorias vigentes para garantizar la seguridad jurídica en la cadena de transporte:
 
-1. **Frontend (Interfaz de Gestión y Escrititorio):** Desarrollado con HTML5, CSS moderno (Tailwind CSS) y JavaScript optimizado, incorporando validaciones síncronas de datos fiscales (NIF/CIF), formatos de matrículas y control estructurado por pasos.
-2. **Backend de Procesamiento (Node.js / NestJS):** Módulos robustos para la compilación de ficheros PDF nativos (garantizando peso inferior a 5 MB, texto seleccionable y metadatos de emisión temporales) y motor de cifrado.
-3. **Capa de Persistencia (PostgreSQL):** Esquema relacional optimizado con restricciones estrictas de integridad referencial, aislamiento de datos multi-tenant por empresa y bitácora de auditoría inmutable.
-
----
-
-## Despliegue en GitHub Pages (Frontend Estático)
-
-La aplicación está preparada para su despliegue inmediato en entornos estáticos como **GitHub Pages**:
-
-1. Asegúrate de que el archivo principal esté renombrado como **`index.html`**.
-2. Sube el fichero a la rama principal (`main`) de tu repositorio público en GitHub.
-3. Configura la sección **Pages** dentro de las opciones de configuración (*Settings*) de tu repositorio, seleccionando la rama `main` y la carpeta raíz (`/root`).
-4. La plataforma quedará accesible mediante un certificado SSL (HTTPS) de forma permanente.
+* **Trazabilidad y Asignación de Responsabilidades:** Integración de los datos estructurales obligatorios que delimitan las obligaciones entre el cargador contractual y el transportista efectivo, conforme a las modificaciones introducidas por la normativa sectorial reciente.
+* **Soporte Electrónico Homologado:** Adaptación a las disposiciones relativas a la digitalización del documento de control administrativo, garantizando la equivalencia funcional con los soportes tradicionales y su disponibilidad ante los Cuerpos de Inspección de Transporte.
+* **Verificación Dinámica mediante Código QR:** Generación de enlaces seguros bajo protocolo HTTPS que permiten a las autoridades competentes la comprobación inmediata de la autenticidad del documento sin comprometer la confidencialidad de la información corporativa.
 
 ---
 
-## Seguridad y Privacidad (RGPD)
+## Características Técnicas del Sistema
 
-* **Principio de Minimización:** Los códigos QR públicos contienen exclusivamente la URL de verificación de la expedición concreta, evitando la exposición innecesaria de datos personales o empresariales ajenos a la inspección.
-* **Aislamiento de Accesos:** Control riguroso de roles (RBAC) para Superadministradores, Administradores de Empresa y Verificadores Documentales, previniendo accesos horizontales no autorizados entre diferentes entidades jurídicas.
+* **Estructura de Datos Normalizada:** Modelado riguroso de los campos obligatorios exigidos por la legislación, incluyendo la identificación fiscal de los intervinientes, detalles geográficos de origen y destino, naturaleza de la mercancía, control de pesos con unidades tipificadas y registro de matrículas de vehículos tractores y remolques.
+* **Integridad Documental:** Mecanismos de sellado y control criptográfico mediante hashes SHA-256 para la detección inmediata de cualquier intento de alteración o modificación no autorizada de los registros emitidos.
+* **Aislamiento Multi-Tenant y Seguridad (RGPD):** Arquitectura diseñada bajo el principio de privacidad desde el diseño, asegurando el cumplimiento estricto del Reglamento General de Protección de Datos mediante el aislamiento lógico de datos entre empresas y la minimización de la información expuesta en los accesos públicos de inspección.
