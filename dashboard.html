@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control — DeCA Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+    <header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold text-lg shadow-lg">D</div>
+                <div>
+                    <h1 class="text-base font-semibold tracking-tight text-white">DeCA Cloud Dashboard</h1>
+                    <p class="text-xs text-slate-400">Orden FOM/2861/2012</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span id="user-email-display" class="text-xs font-mono text-indigo-400 hidden sm:inline"></span>
+                <button onclick="logout()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 transition">Salir</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl w-full mx-auto px-4 py-8 flex-grow">
+        <div class="flex border-b border-slate-800 space-x-4 mb-6">
+            <button onclick="switchTab('generator')" id="tab-btn-generator" class="pb-3 border-b-2 border-indigo-500 text-indigo-400 font-semibold text-sm transition">Emisión de Nuevo DeCA</button>
+            <button onclick="switchTab('history')" id="tab-btn-history" class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold text-sm transition flex items-center space-x-2">
+                <span>Historial de Documentos</span>
+                <span id="history-counter" class="bg-indigo-600/30 text-indigo-300 text-[10px] px-2 py-0.5 rounded-full font-mono">0</span>
+            </button>
+        </div>
+
+        <div id="section-generator" class="max-w-xl mx-auto">
+            <div id="form-card" class="bg-slate-800/60 backdrop-blur-xl border border-slate-700/60 rounded-2xl shadow-2xl p-6 sm:p-8">
+                <div class="mb-8">
+                    <div class="flex justify-between items-center mb-2">
+                        <h2 id="step-title" class="text-lg font-semibold text-white">1. Intervinientes del Transporte</h2>
+                        <span class="text-xs font-medium px-2.5 py-1 rounded-lg bg-slate-700 text-slate-300">Paso <span id="current-step">1</span> de 3</span>
+                    </div>
+                    <div class="w-full bg-slate-700/50 h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-indigo-500 h-full transition-all duration-500 ease-out" style="width: 33%;"></div>
+                    </div>
+                </div>
+
+                <form id="deca-form" onsubmit="event.preventDefault();" class="space-y-5">
+                    <div class="step-pane space-y-4" data-step="1">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Cargador Contractual</label>
+                            <input type="text" id="contractorName" placeholder="Razón Social (ej. Logística del Sur S.A.)" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <input type="text" id="contractorTaxId" placeholder="NIF / CIF" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <input type="text" id="contractorAddress" placeholder="Domicilio Fiscal" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Transportista Efectivo</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <input type="text" id="carrierName" placeholder="Razón Social Transportista" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                <input type="text" id="carrierTaxId" placeholder="NIF Transportista" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+                        <button type="button" onclick="goToStep(2)" class="w-full mt-6 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl shadow-lg transition">Siguiente: Operación &rarr;</button>
+                    </div>
+
+                    <div class="step-pane space-y-4 hidden" data-step="2">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Lugar de Origen (Carga)</label>
+                            <input type="text" id="originAddress" placeholder="Dirección y Localidad de Carga" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Lugar de Destino (Descarga)</label>
+                            <input type="text" id="destinationAddress" placeholder="Dirección y Localidad de Destino" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Naturaleza de la Mercancía</label>
+                            <input type="text" id="merchandiseNature" placeholder="Ej. Productos paletizados" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="col-span-2">
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Peso</label>
+                                <input type="number" id="weightValue" step="0.01" placeholder="Ej. 24000" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Unidad</label>
+                                <select id="weightUnit" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-3 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <option value="KG">KG</option>
+                                    <option value="TON">TON</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Fecha del Transporte</label>
+                            <input type="date" id="transportDate" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" onclick="goToStep(1)" class="w-1/3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-3 rounded-xl transition">Anterior</button>
+                            <button type="button" onclick="goToStep(3)" class="w-2/3 bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl transition">Siguiente: Vehículo &rarr;</button>
+                        </div>
+                    </div>
+
+                    <div class="step-pane space-y-4 hidden" data-step="3">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Matrícula Vehículo Tractor</label>
+                            <input type="text" id="tractorPlate" placeholder="Ej. 1234ABC" required class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white uppercase focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Matrícula Remolque (Opcional)</label>
+                            <input type="text" id="trailerPlate" placeholder="Ej. R-9876" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white uppercase focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div class="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs leading-relaxed">
+                            <strong class="font-semibold block mb-1">Aviso legal obligatorio:</strong> Al emitir este documento, se certifica que el DeCA se genera con carácter previo al inicio efectivo del transporte.
+                        </div>
+                        <div class="flex gap-3 pt-2">
+                            <button type="button" onclick="goToStep(2)" class="w-1/3 bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-3 rounded-xl transition">Anterior</button>
+                            <button type="button" onclick="generateDeca()" class="w-2/3 bg-emerald-600 hover:bg-emerald-500 text-white font-medium py-3 rounded-xl shadow-lg transition">Emitir y Sellar DeCA</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="result-card" class="hidden bg-slate-800/60 backdrop-blur-xl border border-slate-700/60 rounded-2xl shadow-2xl p-6 sm:p-8">
+                <div class="text-center mb-6">
+                    <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl flex items-center justify-center mx-auto mb-3 text-emerald-400 text-2xl">✓</div>
+                    <h2 class="text-xl font-bold text-white">DeCA Emitido con Éxito</h2>
+                    <p class="text-xs text-slate-400 mt-1">Guardado automáticamente en tu historial de cuenta</p>
+                </div>
+                <div class="space-y-3 bg-slate-900/50 border border-slate-700/50 rounded-xl p-4 text-xs mb-6">
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Nº Documento:</span>
+                        <strong id="res-docnum" class="font-mono text-indigo-400"></strong>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Fecha Emisión:</span>
+                        <span id="res-date" class="text-slate-200"></span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-800 pb-2">
+                        <span class="text-slate-400">Cargador:</span>
+                        <span id="res-contractor" class="text-slate-200 truncate max-w-[180px]"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">Matrícula Tractor:</span>
+                        <strong id="res-plate" class="font-mono text-emerald-400"></strong>
+                    </div>
+                </div>
+                <div class="flex flex-col items-center bg-slate-900/80 border border-dashed border-slate-700 rounded-xl p-4 mb-6">
+                    <div class="bg-white p-2 rounded-lg shadow-md mb-3"><canvas id="qr-canvas"></canvas></div>
+                    <span class="text-xs font-medium text-slate-300 mb-1">Código QR de Inspección Directa (HTTPS)</span>
+                    <a id="res-url" href="#" target="_blank" class="text-[11px] text-indigo-400 hover:underline break-all text-center"></a>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button onclick="window.print()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium py-3 rounded-xl shadow-lg transition">Imprimir / Guardar PDF</button>
+                    <button onclick="resetForm()" class="w-full bg-slate-700 hover:bg-slate-600 text-slate-200 font-medium py-3 rounded-xl transition">Nuevo Documento</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-history" class="hidden">
+            <div class="bg-slate-800/60 backdrop-blur-xl border border-slate-700/60 rounded-2xl shadow-2xl p-6 sm:p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Documentos Custodiados</h2>
+                        <p class="text-xs text-slate-400">Historial de registros DeCA vinculados a tu cuenta</p>
+                    </div>
+                    <button onclick="clearUserHistory()" class="text-xs text-rose-400 hover:underline">Limpiar historial</button>
+                </div>
+                <div id="history-list" class="space-y-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="py-6 text-center text-xs text-slate-500 border-t border-slate-800/80">
+        <p>Plataforma Profesional DeCA &bull; Cumplimiento Normativo de Transporte Terrestre en España</p>
+    </footer>
+
+    <script>
+        let currentUser = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const session = localStorage.getItem('deca_active_user');
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = session;
+            document.getElementById('user-email-display').innerText = currentUser;
+            document.getElementById('transportDate').valueAsDate = new Date();
+            loadUserHistory();
+        });
+
+        function logout() {
+            localStorage.removeItem('deca_active_user');
+            window.location.href = 'login.html';
+        }
+
+        function switchTab(tab) {
+            if (tab === 'generator') {
+                document.getElementById('section-generator').classList.remove('hidden');
+                document.getElementById('section-history').classList.add('hidden');
+                document.getElementById('tab-btn-generator').className = "pb-3 border-b-2 border-indigo-500 text-indigo-400 font-semibold text-sm transition";
+                document.getElementById('tab-btn-history').className = "pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold text-sm transition flex items-center space-x-2";
+            } else {
+                document.getElementById('section-generator').classList.add('hidden');
+                document.getElementById('section-history').classList.remove('hidden');
+                document.getElementById('tab-btn-generator').className = "pb-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 font-semibold text-sm transition";
+                document.getElementById('tab-btn-history').className = "pb-3 border-b-2 border-indigo-500 text-indigo-400 font-semibold text-sm transition flex items-center space-x-2";
+                loadUserHistory();
+            }
+        }
+
+        function goToStep(step) {
+            if (step === 2 && (!document.getElementById('contractorName').value || !document.getElementById('contractorTaxId').value || !document.getElementById('carrierName').value)) {
+                alert('Complete los campos obligatorios de los intervinientes.');
+                return;
+            }
+            if (step === 3 && (!document.getElementById('originAddress').value || !document.getElementById('destinationAddress').value || !document.getElementById('merchandiseNature').value || !document.getElementById('weightValue').value)) {
+                alert('Complete los datos de origen, destino y mercancía.');
+                return;
+            }
+            document.querySelectorAll('.step-pane').forEach(el => el.classList.add('hidden'));
+            document.querySelector(`.step-pane[data-step="${step}"]`).classList.remove('hidden');
+            document.getElementById('current-step').innerText = step;
+            const titles = { 1: '1. Intervinientes del Transporte', 2: '2. Origen, Destino y Mercancía', 3: '3. Identificación del Vehículo' };
+            document.getElementById('step-title').innerText = titles[step];
+            document.getElementById('progress-bar').style.width = `${(step / 3) * 100}%`;
+        }
+
+        function generateDeca() {
+            const tractor = document.getElementById('tractorPlate').value;
+            if (!tractor) {
+                alert('La matrícula del vehículo tractor es obligatoria.');
+                return;
+            }
+            const record = {
+                id: 'DECA-ES-2026-' + Math.floor(100000 + Math.random() * 900000),
+                createdAt: new Date().toLocaleString(),
+                contractorName: document.getElementById('contractorName').value,
+                carrierName: document.getElementById('carrierName').value,
+                origin: document.getElementById('originAddress').value,
+                destination: document.getElementById('destinationAddress').value,
+                tractorPlate: tractor.toUpperCase(),
+                verificationUrl: 'https://deca.transportes.gob.es/verify/' + Math.random().toString(36).substring(2, 12)
+            };
+
+            const key = `deca_history_${currentUser}`;
+            const history = JSON.parse(localStorage.getItem(key) || '[]');
+            history.unshift(record);
+            localStorage.setItem(key, JSON.stringify(history));
+
+            document.getElementById('res-docnum').innerText = record.id;
+            document.getElementById('res-date').innerText = record.createdAt;
+            document.getElementById('res-contractor').innerText = record.contractorName;
+            document.getElementById('res-plate').innerText = record.tractorPlate;
+            document.getElementById('res-url').innerText = record.verificationUrl;
+            document.getElementById('res-url').href = '#';
+
+            QRCode.toCanvas(document.getElementById('qr-canvas'), record.verificationUrl, { width: 140, margin: 1 });
+            document.getElementById('form-card').classList.add('hidden');
+            document.getElementById('result-card').classList.remove('hidden');
+            loadUserHistory();
+        }
+
+        function loadUserHistory() {
+            const key = `deca_history_${currentUser}`;
+            const history = JSON.parse(localStorage.getItem(key) || '[]');
+            document.getElementById('history-counter').innerText = history.length;
+            const container = document.getElementById('history-list');
+
+            if (history.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">No has emitido ningún DeCA todavía.</div>`;
+                return;
+            }
+
+            container.innerHTML = history.map(item => `
+                <div class="bg-slate-900/60 border border-slate-700/50 rounded-xl p-4 text-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div class="space-y-1">
+                        <div class="flex items-center space-x-2">
+                            <span class="font-mono font-bold text-indigo-400">${item.id}</span>
+                            <span class="text-[10px] text-slate-500">${item.createdAt}</span>
+                        </div>
+                        <p class="text-slate-300 font-medium">${item.contractorName} &rarr; ${item.carrierName}</p>
+                        <p class="text-slate-400 text-[11px]">${item.origin} &rarr; ${item.destination} | <strong class="text-emerald-400">${item.tractorPlate}</strong></p>
+                    </div>
+                    <button onclick="window.print()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 px-3 py-1.5 rounded-lg border border-indigo-500/30 font-medium transition">Imprimir</button>
+                </div>
+            `).join('');
+        }
+
+        function clearUserHistory() {
+            if (confirm('¿Seguro que deseas borrar tu historial?')) {
+                localStorage.removeItem(`deca_history_${currentUser}`);
+                loadUserHistory();
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('deca-form').reset();
+            document.getElementById('transportDate').valueAsDate = new Date();
+            document.getElementById('result-card').classList.add('hidden');
+            document.getElementById('form-card').classList.remove('hidden');
+            goToStep(1);
+        }
+    </script>
+</body>
+</html>
